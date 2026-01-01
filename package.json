@@ -1,0 +1,10 @@
+{
+  "name": "gitninja",
+  "version": "0.1.0",
+  "description": "GitNinja Chrome extension (scaffold)",
+  "license": "MIT",
+  "scripts": {
+    "zip": "rm -f gitninja.zip && zip -r gitninja.zip . -x \"node_modules/*\" \"*.git*\"",
+    "lint": "echo 'Add your linter (eslint) here if desired'"
+  }
+}

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>GitNinja</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="container">
+      <h1>GitNinja ⚔️</h1>
+      <p id="version">v0.1.0</p>
+
+      <label for="note">Quick note</label>
+      <textarea id="note" placeholder="Add a quick note..."></textarea>
+      <div class="row">
+        <button id="save">Save</button>
+        <button id="clear">Clear</button>
+      </div>
+
+      <p id="status" class="muted">Stored locally using chrome.storage</p>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
