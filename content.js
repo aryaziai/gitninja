@@ -48,140 +48,44 @@
 
       document.body.appendChild(p);
 
+      // populate menu items programmatically so we can set per-label --c and checked state
+      const menuEl = p.querySelector('.menu');
+      if (menuEl) {
+        menuEl.innerHTML = '';
+        s.forEach((x, i) => {
+          const label = document.createElement('label');
+          label.style.cssText = `--i:${i}; --c: var(--c${i})`;
+
+          const span = document.createElement('span');
+          span.textContent = `${x} (${(m.get(x).length / entries.length * 100).toFixed(1)}%)`;
+
+          const input = document.createElement('input');
+          input.type = 'checkbox';
+          input.dataset.ext = x;
+          input.checked = true;
+
+          label.appendChild(span);
+          label.appendChild(input);
+          menuEl.appendChild(label);
+        });
+      }
+
       p.addEventListener('change', n => {
         if (!n.target.dataset.ext) return;
         m.get(n.target.dataset.ext).forEach(y => {
           const b = y.querySelector('.js-details-target');
-          if (b && (b.getAttribute('aria-expanded') === 'true') === n.target.checked) b.click();
+          if (b && (b.getAttribute('aria-expanded') === 'true') !== n.target.checked) b.click();
         });
       });
 
-      document.head.insertAdjacentHTML('beforeend', `<style>
-        #${PANEL_ID} {
-          position: fixed;
-          inset: 50px 20px auto auto;
-          z-index: 9999;
-        }
+      // initialize: check all inputs and trigger change so files are shown on load
+      p.querySelectorAll('input[data-ext]').forEach(inp => {
+        inp.checked = true;
+        inp.dispatchEvent(new Event('change', { bubbles: true }));
+      });
 
-        .ninja-btn {
-          background: #fff;
-          border: 4px solid transparent;
-          background-clip: padding-box;
-          border-radius: 9999em;
-          padding: 0.5rem 1rem;
-          cursor: pointer;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-          position: relative;
-          width: 100%;
-          text-align: center;
-        }
+      // styles moved to styles.css (loaded via manifest / content_scripts)
 
-        .ninja-btn::before {
-          content: '';
-          position: absolute;
-          inset: -4px;
-          border-radius: inherit;
-          background: var(--g);
-          z-index: -1;
-        }
-
-        .ninja-btn::after {
-          content: '🥷';
-          font-size: 18px;
-          background: #fff;
-          border-radius: 9999em;
-        }
-
-        #${PANEL_ID}:hover .ninja-btn::after {
-          content: 'Collapse Files';
-          font-size: 14px;
-          font-weight: 600;
-          color: #24292f;
-        }
-
-        .menu {
-          display: none;
-          flex-direction: column;
-          gap: 6px;
-          background: rgba(255, 255, 255, 0.98);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(0, 0, 0, 0.1);
-          border-radius: 16px;
-          padding: 14px 18px;
-          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
-          margin-top: 8px;
-          width: 200px;
-        }
-
-        #${PANEL_ID}:hover .menu {
-          display: flex;
-          animation: slideIn 0.2s ease-out;
-        }
-
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateY(-10px);
-          }
-        }
-
-        .menu label {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          font-size: 13px;
-          font-weight: 600;
-          cursor: pointer;
-          gap: 10px;
-          color: #24292f;
-        }
-
-        .menu label span {
-          border-left: 3px solid hsl(var(--c, var(--c0)));
-          padding-left: 8px;
-        }
-
-        .menu label[style*="--i:"] span {
-          border-left-color: hsl(var(--c));
-        }
-
-        .menu label[style*="--i:"] input:checked {
-          background: hsl(var(--c));
-        }
-
-        .menu label[style*="--i:"] input:checked::before {
-          box-shadow: 0 2px 8px hsla(var(--c), 0.6);
-        }
-
-        .menu input {
-          appearance: none;
-          width: 36px;
-          height: 20px;
-          background: #ccc;
-          border-radius: 20px;
-          cursor: pointer;
-          position: relative;
-          flex-shrink: 0;
-        }
-
-        .menu input::before {
-          content: '';
-          position: absolute;
-          inset: 2px auto 2px 2px;
-          width: 16px;
-          height: 16px;
-          background: #fff;
-          border-radius: 50%;
-          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
-          transition: translate 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .menu input:checked::before {
-          translate: 16px 0;
-        }
-
-        ${s.map((_, i) => `.menu label[style*="--i:${i}"] { --c: var(--c${i}); }`).join('\n        ')}
-      </style>`);
 
     } catch (err) {
       console.error('GitNinja content script error:', err);
