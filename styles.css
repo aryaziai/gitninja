@@ -1,23 +1,23 @@
-:root {
+.git-ninja {
   --bg: #0f1720;
   --panel: #0b1220;
   --accent: #8be9fd;
   --muted: #9aa4b2;
 }
 
-.container {
+.git-ninja .container {
   width: 320px;
 }
-h1 {
+.git-ninja h1 {
   margin: 0 0 6px;
   font-size: 18px;
 }
-#version {
+.git-ninja #version {
   margin: 0 0 12px;
   color: var(--muted);
   font-size: 12px;
 }
-textarea {
+.git-ninja textarea {
   width: 100%;
   height: 90px;
   padding: 8px;
@@ -26,12 +26,12 @@ textarea {
   background: rgba(255, 255, 255, 0.02);
   color: #fff;
 }
-.row {
+.git-ninja .row {
   display: flex;
   gap: 8px;
   margin-top: 8px;
 }
-button {
+.git-ninja button {
   flex: 1;
   padding: 8px;
   border-radius: 6px;
@@ -40,33 +40,39 @@ button {
   color: #022;
   cursor: pointer;
 }
-.muted {
+.git-ninja .muted {
   color: var(--muted);
   font-size: 12px;
   margin-top: 8px;
 }
 
 /* GitNinja panel styles */
-#ext-toggle-panel {
+.git-ninja#ext-toggle-panel {
   position: fixed;
-  inset: 50px 20px auto auto;
+  /* default inset values come from these vars so JS can set them without writing inline left/top */
+  inset: var(--gitninja-top, 50px) var(--gitninja-right, 20px) var(--gitninja-bottom, auto) var(--gitninja-left, auto);
   z-index: 9999;
 }
 
-.ninja-btn {
+.git-ninja .ninja-btn {
   background: #fff;
   border: 4px solid transparent;
   background-clip: padding-box;
   border-radius: 9999em;
   padding: 0.5rem 1rem;
-  cursor: pointer;
+  cursor: grab;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   position: relative;
   width: 100%;
   text-align: center;
 }
 
-.ninja-btn::before {
+/* when dragging */
+.git-ninja#ext-toggle-panel.dragging .ninja-btn {
+  cursor: grabbing;
+}
+
+.git-ninja .ninja-btn::before {
   content: "";
   position: absolute;
   inset: -4px;
@@ -75,20 +81,20 @@ button {
   z-index: -1;
 }
 
-.ninja-btn::after {
+.git-ninja .ninja-btn::after {
   content: "🥷";
   font-size: 18px;
   border-radius: 9999em;
 }
 
-#ext-toggle-panel:hover .ninja-btn::after {
+.git-ninja#ext-toggle-panel:hover .ninja-btn::after {
   content: "Collapse Files";
   font-size: 14px;
   font-weight: 600;
   color: #24292f;
 }
 
-.menu {
+.git-ninja .menu {
   display: none;
   flex-direction: column;
   gap: 6px;
@@ -102,7 +108,27 @@ button {
   width: 200px;
 }
 
-#ext-toggle-panel:hover .menu {
+.git-ninja .menu .controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.git-ninja .menu .controls button {
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  padding: 6px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.git-ninja .menu .controls button:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.git-ninja#ext-toggle-panel:hover .menu {
   display: flex;
   animation: slideIn 0.2s ease-out;
 }
@@ -114,7 +140,7 @@ button {
   }
 }
 
-.menu label {
+.git-ninja .menu label {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -125,24 +151,24 @@ button {
   color: #24292f;
 }
 
-.menu label span {
+.git-ninja .menu label span {
   border-left: 3px solid hsl(var(--c, var(--c0)));
   padding-left: 8px;
 }
 
-.menu label[style*="--i:"] span {
+.git-ninja .menu label[style*="--i:"] span {
   border-left-color: hsl(var(--c));
 }
 
-.menu label[style*="--i:"] input:checked {
+.git-ninja .menu label[style*="--i:"] input:checked {
   background: hsl(var(--c));
 }
 
-.menu label[style*="--i:"] input:checked::before {
+.git-ninja .menu label[style*="--i:"] input:checked::before {
   box-shadow: 0 2px 8px hsla(var(--c), 0.6);
 }
 
-.menu input {
+.git-ninja .menu input {
   appearance: none;
   width: 36px;
   height: 20px;
@@ -153,7 +179,7 @@ button {
   flex-shrink: 0;
 }
 
-.menu input::before {
+.git-ninja .menu input::before {
   content: "";
   position: absolute;
   inset: 2px auto 2px 2px;
@@ -165,6 +191,6 @@ button {
   transition: translate 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.menu input:checked::before {
+.git-ninja .menu input:checked::before {
   translate: 16px 0;
 }

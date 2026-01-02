@@ -6,3 +6,5 @@ self.addEventListener('install', (event) => {
 self.addEventListener('activate', (event) => {
   console.log('GitNinja service worker activated');
 });
+
+// keyboard shortcuts removed — no command forwarding
