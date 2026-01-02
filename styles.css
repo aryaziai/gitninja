@@ -4,13 +4,7 @@
   --accent: #8be9fd;
   --muted: #9aa4b2;
 }
-body {
-  font-family: Inter, system-ui, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  background: var(--bg);
-  color: #fff;
-  margin: 0;
-  padding: 16px;
-}
+
 .container {
   width: 320px;
 }
