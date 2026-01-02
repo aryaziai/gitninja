@@ -9,7 +9,7 @@
   const SELECTOR = '.copilot-diff-entry, .diff-entry, [data-file-path], .file, .file.js-file, .js-diff-entry, .js-file';
   const PANEL_ID = 'ext-toggle-panel';
 
-  function injectTogglePanel() {
+  async function injectTogglePanel() {
     try {
       if (document.getElementById(PANEL_ID)) return;
 
@@ -50,6 +50,41 @@
       p.innerHTML = `\n        <div class="ninja-btn" style="--g:conic-gradient(${d})" role="button" tabindex="0" aria-haspopup="true" aria-label="GitNinja menu"></div>\n        <div class="menu" role="menu">\n          <div class="controls">\n            <button class="gitninja-expand" type="button" aria-label="Expand all">Expand All</button>\n            <button class="gitninja-collapse" type="button" aria-label="Collapse all">Collapse All</button>\n          </div>\n          ${s.map((x, i) => `\n            <label style="--i:${i}">\n              <span>${x} (${(m.get(x).length / entries.length * 100).toFixed(1)}%)</span>\n              <input type="checkbox" data-ext="${x}" checked aria-checked="true">\n            </label>\n          `).join('')}\n        </div>\n      `;
 
       document.body.appendChild(p);
+      // replace presentational structure with panel.html and populate list via template
+      try {
+        const html = await fetch(chrome.runtime.getURL('panel.html')).then(r => r.text());
+        const tmp = document.createElement('div');
+        tmp.innerHTML = html;
+        const fragmentPanel = tmp.querySelector('#ext-toggle-panel');
+        if (fragmentPanel) p.innerHTML = fragmentPanel.innerHTML;
+        p.querySelector('.ninja-btn')?.style?.setProperty('--g', `conic-gradient(${d})`);
+        const listEl = p.querySelector('.list');
+        if (listEl) {
+          listEl.innerHTML = '';
+          const tpl = tmp.querySelector('#gitninja-label-template')?.content?.firstElementChild;
+          s.forEach((x, i) => {
+            let label;
+            if (tpl) {
+              label = tpl.cloneNode(true);
+              label.style.cssText = `--i:${i}; --c: var(--c${i})`;
+              label.querySelector('span').textContent = `${x} (${(m.get(x).length / entries.length * 100).toFixed(1)}%)`;
+              const input = label.querySelector('input');
+              input.dataset.ext = x;
+              input.checked = true;
+              input.setAttribute('aria-checked', 'true');
+              input.addEventListener('change', () => input.setAttribute('aria-checked', input.checked ? 'true' : 'false'));
+            } else {
+              label = document.createElement('label');
+              label.style.cssText = `--i:${i}; --c: var(--c${i})`;
+              const span = document.createElement('span'); span.textContent = `${x} (${(m.get(x).length / entries.length * 100).toFixed(1)}%)`;
+              const input = document.createElement('input'); input.type = 'checkbox'; input.dataset.ext = x; input.checked = true; input.setAttribute('aria-checked', 'true');
+              input.addEventListener('change', () => input.setAttribute('aria-checked', input.checked ? 'true' : 'false'));
+              label.appendChild(span); label.appendChild(input);
+            }
+            listEl.appendChild(label);
+          });
+        }
+      } catch (e) { /* ignore */ }
 
       // add toggle behavior for menu (hover + keyboard) and drag-to-move
       const ninjaBtn = p.querySelector('.ninja-btn');
@@ -125,29 +160,8 @@
         if (e.key === 'Escape') { closeMenu(); ninjaBtn.focus(); }
       });
 
-      if (menuEl) {
-        menuEl.querySelectorAll('label').forEach(l => l.remove());
-        s.forEach((x, i) => {
-          const label = document.createElement('label');
-          label.style.cssText = `--i:${i}; --c: var(--c${i})`;
+      // labels are populated from the `panel.html` template above
 
-          const span = document.createElement('span');
-          span.textContent = `${x} (${(m.get(x).length / entries.length * 100).toFixed(1)}%)`;
-
-          const input = document.createElement('input');
-          input.type = 'checkbox';
-          input.dataset.ext = x;
-          input.checked = true;
-          input.setAttribute('aria-checked', 'true');
-
-          // sync aria when changed
-          input.addEventListener('change', () => input.setAttribute('aria-checked', input.checked ? 'true' : 'false'));
-
-          label.appendChild(span);
-          label.appendChild(input);
-          menuEl.appendChild(label);
-        });
-      }
 
       // clicking toggles expansion of the file groups
       p.addEventListener('change', n => {
@@ -163,6 +177,26 @@
         inp.checked = true;
         inp.dispatchEvent(new Event('change', { bubbles: true }));
       });
+
+      // Expand/Collapse controls (buttons in the presentational panel.html)
+      const expandBtn = p.querySelector('.gitninja-expand');
+      const collapseBtn = p.querySelector('.gitninja-collapse');
+
+      if (expandBtn) {
+        expandBtn.addEventListener('click', () => {
+          p.querySelectorAll('input[data-ext]').forEach(i => {
+            if (!i.checked) { i.checked = true; i.dispatchEvent(new Event('change', { bubbles: true })); }
+          });
+        });
+      }
+
+      if (collapseBtn) {
+        collapseBtn.addEventListener('click', () => {
+          p.querySelectorAll('input[data-ext]').forEach(i => {
+            if (i.checked) { i.checked = false; i.dispatchEvent(new Event('change', { bubbles: true })); }
+          });
+        });
+      }
 
       // styles moved to styles.css (loaded via manifest / content_scripts)
 

@@ -97,7 +97,7 @@
 .git-ninja .menu {
   display: none;
   flex-direction: column;
-  gap: 6px;
+  gap: 1rem;
   background: rgba(255, 255, 255, 0.98);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(0, 0, 0, 0.1);
@@ -108,10 +108,17 @@
   width: 200px;
 }
 
+.git-ninja .list {
+  display: flex;
+  gap: 0.5rem;
+  flex-direction: column;
+}
+
 .git-ninja .menu .controls {
   display: flex;
   gap: 8px;
   margin-bottom: 8px;
+  flex-direction: column;
 }
 
 .git-ninja .menu .controls button {
