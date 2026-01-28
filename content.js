@@ -19,12 +19,15 @@
       const m = new Map();
 
       entries.forEach(n => {
-        const x = (n.dataset.filePath || n.querySelector('[data-file-path]')?.dataset.filePath)?.match(/\.([^.]+)$/)?.[0];
+        const filePath = n.dataset.filePath || n.querySelector('[data-file-path]')?.dataset.filePath;
+        let x = filePath?.match(/\.([^.]+)$/)?.[0]; // try extension first
+        if (!x) x = filePath?.split('/').pop(); // fallback to filename if no extension
         if (x) (m.get(x) || m.set(x, []).get(x)).push(n);
       });
 
       const s = [...m.keys()].sort();
       const φ = 0.618033988749895;
+      const totalProcessed = Array.from(m.values()).reduce((sum, arr) => sum + arr.length, 0);
 
       const g = (x, i) => {
         let h = 0;
@@ -34,7 +37,7 @@
 
       let d = [], t = 0;
       const v = s.map((x, i) => {
-        const c = m.get(x).length / entries.length * 100;
+        const c = m.get(x).length / totalProcessed * 100;
         const l = g(x, i);
         d.push(`hsl(${l}) ${t}% ${t + c}%`);
         t += c;
@@ -47,7 +50,7 @@
       p.setAttribute('role', 'toolbar');
       p.setAttribute('aria-label', 'GitNinja file toggles');
       p.style.cssText = v;
-      p.innerHTML = `\n        <div class="ninja-btn" style="--g:conic-gradient(${d})" role="button" tabindex="0" aria-haspopup="true" aria-label="GitNinja menu"></div>\n        <div class="menu" role="menu">\n          <div class="controls">\n            <button class="gitninja-expand" type="button" aria-label="Expand all">Expand All</button>\n            <button class="gitninja-collapse" type="button" aria-label="Collapse all">Collapse All</button>\n          </div>\n          ${s.map((x, i) => `\n            <label style="--i:${i}">\n              <span>${x} (${(m.get(x).length / entries.length * 100).toFixed(1)}%)</span>\n              <input type="checkbox" data-ext="${x}" checked aria-checked="true">\n            </label>\n          `).join('')}\n        </div>\n      `;
+      p.innerHTML = `\n        <div class="ninja-btn" style="--g:conic-gradient(${d})" role="button" tabindex="0" aria-haspopup="true" aria-label="GitNinja menu"></div>\n        <div class="menu" role="menu">\n          <div class="controls">\n            <button class="gitninja-expand" type="button" aria-label="Expand all">Expand All</button>\n            <button class="gitninja-collapse" type="button" aria-label="Collapse all">Collapse All</button>\n          </div>\n          ${s.map((x, i) => `\n            <label style="--i:${i}">\n              <span>${x} (${(m.get(x).length / totalProcessed * 100).toFixed(1).replace(/\.0$/, '')}%)</span>\n              <input type="checkbox" data-ext="${x}" checked aria-checked="true">\n            </label>\n          `).join('')}\n        </div>\n      `;
 
       document.body.appendChild(p);
       // replace presentational structure with panel.html and populate list via template
@@ -67,7 +70,7 @@
             if (tpl) {
               label = tpl.cloneNode(true);
               label.style.cssText = `--i:${i}; --c: var(--c${i})`;
-              label.querySelector('span').textContent = `${x} (${(m.get(x).length / entries.length * 100).toFixed(1)}%)`;
+              label.querySelector('span').textContent = `${x} (${(m.get(x).length / totalProcessed * 100).toFixed(1).replace(/\.0$/, '')}%)`;
               const input = label.querySelector('input');
               input.dataset.ext = x;
               input.checked = true;
@@ -76,7 +79,7 @@
             } else {
               label = document.createElement('label');
               label.style.cssText = `--i:${i}; --c: var(--c${i})`;
-              const span = document.createElement('span'); span.textContent = `${x} (${(m.get(x).length / entries.length * 100).toFixed(1)}%)`;
+              const span = document.createElement('span'); span.textContent = `${x} (${(m.get(x).length / totalProcessed * 100).toFixed(1).replace(/\.0$/, '')}%)`;
               const input = document.createElement('input'); input.type = 'checkbox'; input.dataset.ext = x; input.checked = true; input.setAttribute('aria-checked', 'true');
               input.addEventListener('change', () => input.setAttribute('aria-checked', input.checked ? 'true' : 'false'));
               label.appendChild(span); label.appendChild(input);
